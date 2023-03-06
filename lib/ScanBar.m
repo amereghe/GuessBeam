@@ -23,13 +23,13 @@ function [alphaFit,betaFit,emiGfit,phisFit,alphaPrp,betaPrp,emiGprp,phisPrp,sigZ
         % contouring ellypse
         [alphaFit(iIter),betaFit(iIter),emiGfit(iIter),sigM]=GetOpticsFromSigmaMatrix(TransportedPoints);   % ellypse orientation
         emiGfit(iIter)=max(GetSinglePartEmittance(TransportedPoints,alphaFit(iIter),betaFit(iIter)));  % max 
-        MyContours=ExpandMat(MyContours,ContourEllypse(alphaFit(iIter),betaFit(iIter),emiGfit(iIter)));
+        MyContours=ExpandMat(MyContours,GenPointsAlongEllypse(alphaFit(iIter),betaFit(iIter),emiGfit(iIter)));
         sigZ(iIter)=sqrt(sigM(1,1)); sigZP(iIter)=sqrt(sigM(2,2));
 
         % propagated ellypse
         [betaPrp(iIter),alphaPrp(iIter)]=TransportOptics(TMs(:,:,iIter),betaStart,alphaStart);
         emiGprp(iIter)=emiGfit(iIter);
-        MyContours=ExpandMat(MyContours,ContourEllypse(alphaPrp(iIter),betaPrp(iIter),emiGprp(iIter)));
+        MyContours=ExpandMat(MyContours,GenPointsAlongEllypse(alphaPrp(iIter),betaPrp(iIter),emiGprp(iIter)));
 
         % [m,rad] to [mm,mrad]
         TransportedPoints=TransportedPoints*1E3;
