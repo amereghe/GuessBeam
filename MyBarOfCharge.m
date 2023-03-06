@@ -26,7 +26,7 @@ MyContoursStart=ExpandMat(MyContoursStart,ContourRectangle(bb,hh));
 clear alphaStart betaStart emiGstart;
 [alphaStart,betaStart,emiGstart]=GetOpticsFromSigmaMatrix(MyPointsStart);   % ellypse orientation
 emiGstart=max(GetSinglePartEmittance(MyPointsStart,alphaStart,betaStart));  % max 
-MyContoursStart=ExpandMat(MyContoursStart,SampleEllypse(alphaStart,betaStart,emiGstart));
+MyContoursStart=ExpandMat(MyContoursStart,ContourEllypse(alphaStart,betaStart,emiGstart));
 
 % show starting configuration
 % % - just points and contours
