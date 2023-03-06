@@ -21,12 +21,12 @@ MyPointsStart=SampleRect(nPoints,bb,hh);
 % contours
 clear MyContoursStart; MyContoursStart=missing();
 % contouring Rect
-MyContoursStart=ExpandMat(MyContoursStart,ContourRectangle(bb,hh));
+MyContoursStart=ExpandMat(MyContoursStart,GenPointsAlongRectangle(bb,hh));
 % contouring ellypse
 clear alphaStart betaStart emiGstart;
 [alphaStart,betaStart,emiGstart]=GetOpticsFromSigmaMatrix(MyPointsStart);   % ellypse orientation
 emiGstart=max(GetSinglePartEmittance(MyPointsStart,alphaStart,betaStart));  % max 
-MyContoursStart=ExpandMat(MyContoursStart,ContourEllypse(alphaStart,betaStart,emiGstart));
+MyContoursStart=ExpandMat(MyContoursStart,GenPointsAlongEllypse(alphaStart,betaStart,emiGstart));
 
 % show starting configuration
 % % - just points and contours
@@ -241,20 +241,6 @@ function [alpha,beta,emiG]=ReconstructOptics(myCoords,algo)
         otherwise
             error("...reconstruction algorithm %s NOT recognised.",algo);
     end
-end
-
-function MyRect=ContourRectangle(bb,hh,nX,nY)
-    if (~exist("nX","var")), nX=31; end
-    if (~exist("nY","var")), nY=11; end
-    
-    xDom=linspace(-bb,bb,nX);
-    yDom=linspace(-hh,hh,nY); yDom=yDom(2:end-1); % avoid repetitions
-    nBarPoints=2*(length(xDom)+length(yDom))+1;
-    
-    MyRect=NaN(nBarPoints,2);
-    MyRect(1:end-1,1)=[ xDom                     bb*ones(1,length(yDom)) xDom(end:-1:1)          -bb*ones(1,length(yDom)) ]; 
-    MyRect(1:end-1,2)=[ -hh*ones(1,length(xDom)) yDom                    hh*ones(1,length(xDom)) yDom(end:-1:1)           ];
-    MyRect(end,:)=MyRect(1,:);
 end
 
 function MyPoints=SampleRect(nPoints,bb,hh)
