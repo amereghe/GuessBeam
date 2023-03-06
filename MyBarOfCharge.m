@@ -16,7 +16,7 @@ hh=0.1E-3;  % [rad]
 
 % sample points
 nPoints=10000;
-MyPointsStart=SampleRect(nPoints,bb,hh);
+MyPointsStart=BeamSample_Rect(nPoints,bb,hh);
 
 % contours
 clear MyContoursStart; MyContoursStart=missing();
@@ -241,12 +241,6 @@ function [alpha,beta,emiG]=ReconstructOptics(myCoords,algo)
         otherwise
             error("...reconstruction algorithm %s NOT recognised.",algo);
     end
-end
-
-function MyPoints=SampleRect(nPoints,bb,hh)
-    MyPoints=NaN(nPoints,2);
-    MyPoints(:,1)=2*bb*rand(nPoints,1)-bb;
-    MyPoints(:,2)=2*hh*rand(nPoints,1)-hh;
 end
 
 function [zOut]=RotateMe(zIn,angle)
