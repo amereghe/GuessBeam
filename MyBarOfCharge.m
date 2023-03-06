@@ -75,7 +75,7 @@ iMon=1;
 % run("D:\emittanzeHEBT\2022-03-13\SetMeUp_U2p006ApQUE_C270_secondoGiro.m");
 % run("D:\emittanzeHEBT\2022-03-13\SetMeUp_U2p010ApQUE_C270_secondoGiro.m");
 run("D:\emittanzeHEBT\2022-03-13\SetMeUp_U2p016ApQUE_C270_secondoGiro.m");
-[measProfiles,CyCodesProf,CyProgsProf]=ParseDDSProfiles(sprintf("%s\\%s\\%s\\profiles\\*_profiles.txt",measPath,path(iScanSetUps),CAMpaths(1)),"CAM");
+[measProfiles,CyCodesProf,CyProgsProf]=ParseBeamProfiles(sprintf("%s\\%s\\%s\\profiles\\*_profiles.txt",measPath,path(iScanSetUps),CAMpaths(1)),"CAM");
 [BARsMeas,FWxMsMeas,INTsMeas]=StatDistributions(measProfiles);
 
 %% rotate Bar
@@ -117,7 +117,7 @@ clear profiles; profiles=NaN(length(xb)-1,1+size(TMs,3),nAngles,length(BBs));
 
 % lFirst=true;
 for iDim=1:length(BBs)
-    MyPointsStart=SampleRect(nPoints,BBs(iDim),HHs(iDim));
+    MyPointsStart=BeamSample_Rect(nPoints,BBs(iDim),HHs(iDim));
     % rotate in physical phase space
     normAngle=-6; % [degs]
     clear RMN; RMN=Rot2D(-normAngle);
