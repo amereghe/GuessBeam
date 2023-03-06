@@ -44,7 +44,7 @@ sgtitle("starting bar of charge");
 
 %% rotate distribution
 angle=30;
-RM=GetRotationMatrix(-angle);
+RM=Rot2D(-angle);
 % % - in normalised phase space
 % lNorm=true;
 % MyPointsStartTransported=AdvanceMyPoints(MyPointsStart,RM,lNorm);
@@ -81,7 +81,7 @@ run("D:\emittanzeHEBT\2022-03-13\SetMeUp_U2p016ApQUE_C270_secondoGiro.m");
 %% rotate Bar
 lNorm=true;
 angles=-180:10:180;
-clear RMs; RMs=GetRotationMatrix(-angles);
+clear RMs; RMs=Rot2D(-angles);
 rr=max(bb,hh)*1.5; % [mm]
 xb=linspace(-rr,rr,100+1)*1E3; % [m] to [mm]
 yb=linspace(-rr,rr,100+1)*1E3; % [rad] to [mrad]
@@ -99,7 +99,7 @@ ComparePropagationVsFit(angles,"\theta [deg]",alphaFit,betaFit,emiGfit,phisFit,a
 %% try to reproduce scan
 angles=20:5:70; % [degs]
 nAngles=length(angles);
-clear RMs; RMs=GetRotationMatrix(-angles);
+clear RMs; RMs=Rot2D(-angles);
 
 nPoints=10000;
 BBs=6.75*1E-3;    % [m]
@@ -120,7 +120,7 @@ for iDim=1:length(BBs)
     MyPointsStart=SampleRect(nPoints,BBs(iDim),HHs(iDim));
     % rotate in physical phase space
     normAngle=-6; % [degs]
-    clear RMN; RMN=GetRotationMatrix(-normAngle);
+    clear RMN; RMN=Rot2D(-normAngle);
     MyPointsStart=AdvanceMyPoints(MyPointsStart,RMN,false,false); % lNorm,ldebug
     % rotate in normalised phase space
     for iRotMat=1:nAngles
@@ -263,11 +263,4 @@ function ShowMe(MyPoints,MyContours)
     end
     
     grid(); % axis equal;
-end
-
-function TR=GetRotationMatrix(angle)
-    TR=NaN(2,2,length(angle));
-    for ii=1:length(angle)
-        TR(:,:,ii)=[cosd(angle(ii)) -sind(angle(ii)); sind(angle(ii)) cosd(angle(ii))];
-    end
 end
