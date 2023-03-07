@@ -1,3 +1,0 @@
-[submodule "externals/MatLabTools"]
-	path = externals/MatLabTools
-	url = git@github.com:amereghe/MatLabTools.git
