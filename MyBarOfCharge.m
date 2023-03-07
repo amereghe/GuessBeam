@@ -2,7 +2,7 @@
 
 %% include libraries
 % - include Matlab libraries
-pathToLibrary="externals\MatLabTools";
+pathToLibrary="../MatLabTools";
 addpath(genpath(pathToLibrary));
 % - include lib libraries
 pathToLibrary="lib";
