@@ -7,9 +7,9 @@
 % % - include lib libraries
 % pathToLibrary="lib";
 % addpath(genpath(pathToLibrary));
-% 
+
 %% user settings
-whatScan="MUY";
+whatScan="MUX";
 
 % - starting optics functions: V.Lante, "XPR optics design"
 BETXstartNom=8.184; ALFXstartNom=-0.443;
@@ -19,20 +19,24 @@ emiGeo=1; % [m rad]
 % - path to files
 % iFileNameOpticsSummary="../optics/HEBT/output_p030_MUX_X3-011B-VWN_free_10p0degs/x3_011b_vwn_summary_optics.tfs";
 % iFileNameRMatrixSummary="../optics/HEBT/output_p030_MUX_X3-011B-VWN_free_10p0degs/x3_011b_vwn_summary_rmatrix.tfs";
-iFileNameOpticsSummary="../optics/HEBT/output_p030_MUY_X3-011B-VWN_free_10p0degs/x3_011b_vwn_summary_optics.tfs";
-iFileNameRMatrixSummary="../optics/HEBT/output_p030_MUY_X3-011B-VWN_free_10p0degs/x3_011b_vwn_summary_rmatrix.tfs";
+% iFileNameOpticsSummary="../optics/HEBT/output_p030_MUY_X3-011B-VWN_free_10p0degs/x3_011b_vwn_summary_optics.tfs";
+% iFileNameRMatrixSummary="../optics/HEBT/output_p030_MUY_X3-011B-VWN_free_10p0degs/x3_011b_vwn_summary_rmatrix.tfs";
+% iFileNameOpticsSummary="../optics/HEBT/output_p030_MUX_X3-011B-VWN_constrained_10p0degs/x3_011b_vwn_summary_optics.tfs";
+% iFileNameRMatrixSummary="../optics/HEBT/output_p030_MUX_X3-011B-VWN_constrained_10p0degs/x3_011b_vwn_summary_rmatrix.tfs";
+iFileNameOpticsSummary="../optics/HEBT/output_p030_MUX_X3-011B-VWN_constrained_02p5degs/x3_011b_vwn_summary_optics.tfs";
+iFileNameRMatrixSummary="../optics/HEBT/output_p030_MUX_X3-011B-VWN_constrained_02p5degs/x3_011b_vwn_summary_rmatrix.tfs";
 
 % - 2D histograms (Poincaré phase plots)
 rx=64E-03; % used also for cameretta [m]
 ry=3E-03;  % [rad]
 
 % - beam sampling
-nParticles=100000;
+nParticles=10000;
 
 % - bar of charge dimensions
-bb=2E-3;    % [sqrt(m)] or [m]
+bb=20E-3;    % [sqrt(m)] or [m]
 hh=0.1E-3;  % [sqrt(m)] or [rad]
-barIsNormal=true; % bar of charge sampled in normal coordinates
+barIsNormal=false; % bar of charge sampled in normal coordinates
 
 % - Gaussian sampling
 GaussIsNormal=true;
@@ -103,7 +107,6 @@ else
     end
 end
 
-
 % contours
 clear MyContoursStart; MyContoursStart=missing();
 if (lBar)
@@ -137,7 +140,7 @@ MyContoursStart=ExpandMat(MyContoursStart,GenPointsAlongEllypse(alphaStart,betaS
 % sgtitle("starting beam");
 
 % show 2D histogram
-ShowPhysNorm(MyPointsStart,betaStartNom,alfaStartNom,emiGeo,"starting beam");
+ShowCoordsPhysNorm(MyPointsStart,betaStartNom,alfaStartNom,emiGeo,"starting beam");
 
 %% scan beam,
 lNorm=false;
@@ -165,7 +168,7 @@ RM=RMs(:,:,mu0==angles);
 lNorm=false; % lNorm=true for normalised units
 MyPointsTransportedNominal=AdvanceMyPoints(MyPointsStart,RM,lNorm);
 % show 2D histogram
-ShowPhysNorm(MyPointsTransportedNominal,beta0,alfa0,emiGeo,"nominal transported beam");
+ShowCoordsPhysNorm(MyPointsTransportedNominal,beta0,alfa0,emiGeo,"nominal transported beam");
 
 %% try to get inverse radon transform
 % - select range of points
@@ -195,8 +198,9 @@ for iMax=find(diff(angles>angles(1)+Delta)):length(angles)
 end
 
 %% local functions
-function ShowPhysNorm(MyPoints,beta,alfa,emiGeo,myTitle,lPhys)
+function ShowCoordsPhysNorm(MyPoints,beta,alfa,emiGeo,myTitle,lPhys,l3D)
 
+    if (~exist("l3D","var")), l3D=true; end
     if (~exist("lPhys","var")), lPhys=true; end
     if (lPhys)
         MyPointsPhys=MyPoints;
@@ -225,16 +229,32 @@ function ShowPhysNorm(MyPoints,beta,alfa,emiGeo,myTitle,lPhys)
     ff.Position(3)=2*ff.Position(3);
     % - physical units
     subplot(1,2,1);
-    imagesc('XData',XsPhys,'YData',YsPhys,'CData',nCountsPhys');
-    grid(); colorbar;
+    if (l3D)
+        % 3D plot
+        surf(XsPhys,YsPhys,nCountsPhys',"EdgeColor","none");
+        zlabel("counts []");
+        view(2); % starts appearing as a 2D plot
+    else
+        % 2D plot
+        imagesc('XData',XsPhys,'YData',YsPhys,'CData',nCountsPhys');
+        grid(); colorbar;
+    end
     xlabel("z [m]"); ylabel("zp [rad]"); title("physical units");
     % - normalised units
     subplot(1,2,2);
-    imagesc('XData',XsNorm,'YData',YsNorm,'CData',nCountsNorm');
-    grid(); colorbar;
-    axis square;
+    if (l3D)
+        % 3D plot
+        surf(XsNorm,YsNorm,nCountsNorm',"EdgeColor","none");
+        zlabel("counts []");
+        view(2); % starts appearing as a 2D plot
+    else
+        % 2D plot
+        imagesc('XData',XsNorm,'YData',YsNorm,'CData',nCountsNorm');
+        grid(); colorbar;
+    end
     zMin=min([xlim ylim]); zMax=max([xlim ylim]);
     xlim([zMin zMax]); ylim([zMin zMax]);
+    axis square;
     if (emiGeo==1)
         xlabel("z [\surd{m}]"); ylabel("zp [\surd{m}]");
     else
@@ -246,7 +266,9 @@ function ShowPhysNorm(MyPoints,beta,alfa,emiGeo,myTitle,lPhys)
     
 end
 
-function ShowSinogramIR(profiles,angles,myTitle)
+function ShowSinogramIR(profiles,angles,myTitle,l3D)
+
+    if (~exist("l3D","var")), l3D=true; end
 
     %% compute Radon anti-transform
     myInterpolation="spline"; myFilter="Hamming"; % "Hamming","Ram-Lak"
@@ -259,12 +281,20 @@ function ShowSinogramIR(profiles,angles,myTitle)
     subplot(1,2,1);
     PlotSinogramProfiles(profiles,angles);
     grid(); colorbar;
-    xlabel('Angle [degs]'); ylabel("z [\surd{m}]"); title('Synogram');
+    xlabel('Angle [degs]'); ylabel("z [\surd{m}]"); title('sinogram');
     % - inverse radon transform (normalised coordinates)
     rs=linspace(min(profiles(:,1))/sqrt(2),max(profiles(:,1))/sqrt(2),size(IR,1)); % []
     subplot(1,2,2);
-    imagesc('XData',rs,'YData',rs,'CData',IR);
-    grid(); colorbar;
+    if (l3D)
+        % 3D plot
+        surf(rs,rs,IR,"EdgeColor","none");
+        zlabel("inverse Radon transform");
+        view(2); % starts appearing as a 2D plot
+    else
+        % 2D plot
+        imagesc('XData',rs,'YData',rs,'CData',IR);
+        grid(); colorbar;
+    end
     axis square;
     xlabel('z [\surd{m}]'); ylabel('zp [\surd{m}]'); title('Reconstructed (normalised units)');
     % - general stuff
@@ -277,7 +307,7 @@ function ShowSinogramProfiles(profiles,angles)
     ff=figure();
     PlotSinogramProfiles(profiles,angles);
     grid(); colorbar;
-    xlabel('Angle [degs]'); ylabel("z [mm]"); title('Synogram');
+    xlabel('Angle [degs]'); ylabel("z [mm]"); title('sinogram');
 end
 
 function PlotSinogramProfiles(profiles,myPar)
