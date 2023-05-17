@@ -20,6 +20,7 @@ planeShow="X";
 BETXstartNom=8.184; ALFXstartNom=-0.443;
 BETYstartNom=4.526; ALFYstartNom=-1.985;
 emiGeoNom=1E-6; % [m rad]
+emiGeoDisplay=1; % [m rad] 1: get sqrt(m)
 
 % - path to files
 % iFileNameOpticsSummary="../optics/HEBT/output_p030_MUX_X3-011B-VWN_free_10p0degs/x3_011b_vwn_summary_optics.tfs";
@@ -30,8 +31,10 @@ emiGeoNom=1E-6; % [m rad]
 % iFileNameRMatrixSummary="../optics/HEBT/output_p030_MUX_X3-011B-VWN_constrained_10p0degs/x3_011b_vwn_summary_rmatrix.tfs";
 % iFileNameOpticsSummary="../optics/HEBT/output_p030_MUX_X3-011B-VWN_constrained_02p5degs/x3_011b_vwn_summary_optics.tfs";
 % iFileNameRMatrixSummary="../optics/HEBT/output_p030_MUX_X3-011B-VWN_constrained_02p5degs/x3_011b_vwn_summary_rmatrix.tfs";
-iFileNameOpticsSummary="../optics/HEBT/output_p320_MUX_X3-011B-VWN_free_10p0degs/x3_011b_vwn_summary_optics.tfs";
-iFileNameRMatrixSummary="../optics/HEBT/output_p320_MUX_X3-011B-VWN_free_10p0degs/x3_011b_vwn_summary_rmatrix.tfs";
+% iFileNameOpticsSummary="../optics/HEBT/output_p320_MUX_X3-011B-VWN_free_10p0degs/x3_011b_vwn_summary_optics.tfs";
+% iFileNameRMatrixSummary="../optics/HEBT/output_p320_MUX_X3-011B-VWN_free_10p0degs/x3_011b_vwn_summary_rmatrix.tfs";
+iFileNameOpticsSummary="../optics/HEBT/output_p320_MUX_X3-011B-VWN_free_10p0degs_BETXt01p75/x3_011b_vwn_summary_optics.tfs";
+iFileNameRMatrixSummary="../optics/HEBT/output_p320_MUX_X3-011B-VWN_free_10p0degs_BETXt01p75/x3_011b_vwn_summary_rmatrix.tfs";
 
 % - 2D histograms (Poincaré phase plots)
 xb=linspace(-64,64,128+1); % [mm]
@@ -51,12 +54,8 @@ gammaStartUsed=(1+alfaStartUsed.^2)./betaStartUsed;
 emiGeoUsed=emiGeoNom;
 
 % - bar of charge dimensions
-bb=1;     % [sqrt(m)] or [m]
-hh=0.01;  % [sqrt(m)] or [rad]
-barIsNormal=false; % bar of charge sampled in normal coordinates
-
-% - Gaussian sampling
-GaussIsNormal=true;
+bb=2;     % [sqrt(m)] or [m]
+hh=0.1;   % [sqrt(m)] or [rad]
 
 %% do the job
 
@@ -156,10 +155,10 @@ for iPlane=1:length(planeShow)
     MyContours=ExpandMat(MyContours,MyContoursStartFit(:,:,iPlane));
     MyContours=ExpandMat(MyContours,MyContoursStartTheory(:,:,iPlane));
     MyContoursLabels=["Beam Generation" "Statistics on Generated Beam" "Nominal Optics"];
-    ShowCoordsPhysNormScatter(MyPointsStart(:,:,iPlane),betaStartUsed(iPlane),alfaStartUsed(iPlane),emiGeoUsed(iPlane),sprintf("starting beam - plane %s",planeShow(iPlane)),true,MyContours,MyContoursLabels);
+    ShowCoordsPhysNormScatter(MyPointsStart(:,:,iPlane),betaStartUsed(iPlane),alfaStartUsed(iPlane),emiGeoDisplay,sprintf("starting beam - plane %s",planeShow(iPlane)),true,MyContours,MyContoursLabels);
     
     % show 2D histogram
-    ShowCoordsPhysNorm(MyPointsStart(:,:,iPlane),betaStartUsed(iPlane),alfaStartUsed(iPlane),emiGeoUsed(iPlane),sprintf("starting beam - plane %s",planeShow(iPlane)));
+    ShowCoordsPhysNorm(MyPointsStart(:,:,iPlane),betaStartUsed(iPlane),alfaStartUsed(iPlane),emiGeoDisplay,sprintf("starting beam - plane %s",planeShow(iPlane)));
 end
 
 %% scan beam,
@@ -189,7 +188,7 @@ MyPointsTransportedNominal=missing();
 for iPlane=1:length(planeShow)
     MyPointsTransportedNominal=ExpandMat(MyPointsTransportedNominal,AdvanceMyPoints(MyPointsStart(:,:,iPlane),RM(:,:,:,iPlane),lNorm));
     % show 2D histogram
-    ShowCoordsPhysNorm(MyPointsTransportedNominal(:,:,iPlane),betaObsNom(iPlane),alfaObsNom(iPlane),emigNom(iPlane),sprintf("Tracked beam through nominal optics - plane %s",planeShow(iPlane)));
+    ShowCoordsPhysNorm(MyPointsTransportedNominal(:,:,iPlane),betaObsNom(iPlane),alfaObsNom(iPlane),emiGeoDisplay,sprintf("Tracked beam through nominal optics - plane %s",planeShow(iPlane)));
 end
 
 %% try to get inverse radon transform
@@ -204,8 +203,8 @@ myAngles=-(angles(myRange));
 myProfiles=profiles(:,[1 myRange+1],:);
 %   normalised coordinates
 for iPlane=1:length(planeShow)
-    myProfiles(:,1,iPlane)=myProfiles(:,1,iPlane)/(sqrt(betaObsNom(iPlane)*emigNom(iPlane))*1E3);
-    ShowSinogramIR(myProfiles(:,:,iPlane),myAngles);
+    myProfiles(:,1,iPlane)=myProfiles(:,1,iPlane)/(sqrt(betaObsNom(iPlane)*emiGeoDisplay)*1E3);
+    ShowSinogramIR(myProfiles(:,:,iPlane),myAngles,sprintf("Inverse Radon Tranform"),emiGeoDisplay,betaStartUsed(iPlane),alfaStartUsed(iPlane));
 end
 
 %% stop
@@ -250,7 +249,12 @@ function ShowCoordsPhysNormScatter(MyPoints,beta,alfa,emiGeo,myTitle,lPhys,MyCon
     sgtitle(sprintf("%s - Physical units",myTitle));
     if (~all(ismissing(MyContoursPhys),"all") & exist("MyContoursLabel","var")), legend(axM,["Beam" MyContoursLabel],"Location","best"); end
     figure();
-    [axM,axX,axY]=Plot2DHistograms(MyPointsNorm,nCountsXnorm,nCountsYnorm,xbNorm,ybNorm,"z []","zp []",MyContoursNorm,false);
+    if (emiGeo==1)
+        xLab="z [\surd{m}]"; yLab="zp [\surd{m}]";
+    else
+        xLab="z []"; yLab="zp []";
+    end
+    [axM,axX,axY]=Plot2DHistograms(MyPointsNorm,nCountsXnorm,nCountsYnorm,xbNorm,ybNorm,xLab,yLab,MyContoursNorm,false);
     sgtitle(sprintf("%s - Normalised units",myTitle));
     if (~all(ismissing(MyContoursNorm),"all") & exist("MyContoursLabel","var")), legend(axM,["Beam" MyContoursLabel],"Location","best"); end
 end
@@ -323,9 +327,10 @@ function ShowCoordsPhysNorm(MyPoints,beta,alfa,emiGeo,myTitle,lPhys,l3D)
     
 end
 
-function ShowSinogramIR(profiles,angles,myTitle,l3D)
+function ShowSinogramIR(profiles,angles,myTitle,emiGeo,myBeta,myAlfa,l3D)
 
     if (~exist("l3D","var")), l3D=true; end
+    if (~exist("emiGeo","var")), emiGeo=1; end
 
     %% compute Radon anti-transform
     myInterpolation="spline"; myFilter="Hamming"; % "Hamming","Ram-Lak"
@@ -334,14 +339,15 @@ function ShowSinogramIR(profiles,angles,myTitle,l3D)
     %% actually show
     ff=figure();
     ff.Position(3)=2*ff.Position(3);
+    if (exist("myAlfa","var")), nPlots=3; else nPlots=2; end
     % - sinogram
-    subplot(1,2,1);
+    subplot(1,nPlots,1);
     PlotSinogramProfiles(profiles,angles,l3D);
     grid(); colorbar;
     xlabel('Angle [degs]'); ylabel("z [\surd{m}]"); title('sinogram');
     % - inverse radon transform (normalised coordinates)
     rs=linspace(min(profiles(:,1))/sqrt(2),max(profiles(:,1))/sqrt(2),size(IR,1)); % []
-    subplot(1,2,2);
+    subplot(1,nPlots,2);
     if (l3D)
         % 3D plot
         surf(rs,rs,IR,"EdgeColor","none");
@@ -353,7 +359,24 @@ function ShowSinogramIR(profiles,angles,myTitle,l3D)
         grid(); colorbar;
     end
     axis square;
-    xlabel('z [\surd{m}]'); ylabel('zp [\surd{m}]'); title('Reconstructed (normalised units)');
+    if (emiGeo==1)
+        xlabel("z [\surd{m}]"); ylabel("zp [\surd{m}]");
+    else
+        xlabel("z []"); ylabel("zp []");
+    end
+    title('Reconstructed (normalised units)');
+    % - reconstructed starting beam in physical units
+    if (nPlots==3)
+        [X,Y]=meshgrid(rs);
+        zIn=X(1:length(rs)^2)'; zIn(:,2)=Y(1:length(rs)^2)';
+        [zOut]=Norm2Phys(zIn,myBeta,myAlfa,emiGeo);
+        X=reshape(zOut(:,1),length(rs),length(rs));
+        Y=reshape(zOut(:,2),length(rs),length(rs));
+        subplot(1,nPlots,nPlots);
+        surf(X,Y,IR,"EdgeColor","none");
+        view(2); % starts appearing as a 2D plot
+        title('Reconstructed (physical units)');
+    end
     % - general stuff
     mySgTitle=sprintf('interpolation: %s - filter: %s',myInterpolation,myFilter);
     if (exist("myTitle","var")), mySgTitle=sprintf("%s - %s",myTitle,mySgTitle); end
